@@ -1,0 +1,90 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Create ansible directory
+      file:
+        path: ansible
+        state: directory
+
+    - name: Create inventory.cfg
+      copy:
+        dest: ansible/inventory.cfg
+        content: ""
+
+    - name: Create main.yaml
+      copy:
+        dest: ansible/main.yaml
+        content: ""
+
+    - name: Create roles directory
+      file:
+        path: ansible/roles
+        state: directory
+
+    - name: Create common role directories and files
+      file:
+        path: "{{ item.path }}"
+        state: "{{ item.state | default('directory') }}"
+        mode: "{{ item.mode | default('0755') }}"
+      with_items:
+        - { path: "ansible/roles/common/tasks", state: "directory" }
+        - { path: "ansible/roles/common/tasks/main.yaml", state: "touch" }
+
+    - name: Create user role directories and files
+      file:
+        path: "{{ item.path }}"
+        state: "{{ item.state | default('directory') }}"
+        mode: "{{ item.mode | default('0755') }}"
+      with_items:
+        - { path: "ansible/roles/user/tasks", state: "directory" }
+        - { path: "ansible/roles/user/tasks/main.yaml", state: "touch" }
+
+    - name: Create app role directories and files
+      file:
+        path: "{{ item.path }}"
+        state: "{{ item.state | default('directory') }}"
+        mode: "{{ item.mode | default('0755') }}"
+      with_items:
+        - { path: "ansible/roles/app/tasks", state: "directory" }
+        - { path: "ansible/roles/app/tasks/main.yaml", state: "touch" }
+
+    - name: Create postgres role directories and files
+      file:
+        path: "{{ item.path }}"
+        state: "{{ item.state | default('directory') }}"
+        mode: "{{ item.mode | default('0755') }}"
+      with_items:
+        - { path: "ansible/roles/postgres/tasks", state: "directory" }
+        - { path: "ansible/roles/postgres/tasks/main.yaml", state: "touch" }
+        - { path: "ansible/roles/postgres/files", state: "directory" }
+        - { path: "ansible/roles/postgres/files/pg_hba.conf", state: "touch" }
+
+    - name: Create nginx role directories and files
+      file:
+        path: "{{ item.path }}"
+        state: "{{ item.state | default('directory') }}"
+        mode: "{{ item.mode | default('0755') }}"
+      with_items:
+        - { path: "ansible/roles/nginx/tasks", state: "directory" }
+        - { path: "ansible/roles/nginx/tasks/main.yaml", state: "touch" }
+        - { path: "ansible/roles/nginx/templates", state: "directory" }
+        - { path: "ansible/roles/nginx/templates/nginx.conf.j2", state: "touch" }
+
+    - name: Create rabbitmq role directories and files
+      file:
+        path: "{{ item.path }}"
+        state: "{{ item.state | default('directory') }}"
+        mode: "{{ item.mode | default('0755') }}"
+      with_items:
+        - { path: "ansible/roles/rabbitmq/tasks", state: "directory" }
+        - { path: "ansible/roles/rabbitmq/tasks/main.yaml", state: "touch" }
+
+    - name: Create logging role directories and files
+      file:
+        path: "{{ item.path }}"
+        state: "{{ item.state | default('directory') }}"
+        mode: "{{ item.mode | default('0755') }}"
+      with_items:
+        - { path: "ansible/roles/logging/tasks", state: "directory" }
+        - { path: "ansible/roles/logging/tasks/main.yaml", state: "touch" }
+
