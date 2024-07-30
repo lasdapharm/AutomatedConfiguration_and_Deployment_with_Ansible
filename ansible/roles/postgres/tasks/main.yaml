@@ -1,0 +1,52 @@
+---
+- name: Install PostgreSQL
+  apt:
+    name: postgresql
+    state: present
+    update_cache: yes
+
+- name: Ensure PostgreSQL is running
+  systemd:
+    name: postgresql
+    state: started
+    enabled: yes
+
+- name: Wait for PostgreSQL to be available
+  wait_for:
+    port: 5432
+    delay: 10
+    timeout: 60
+
+- name: Get PostgreSQL version
+  command: psql --version
+  register: pg_version_result
+
+- name: Set PostgreSQL config path
+  set_fact:
+    pg_config_path: "/etc/postgresql/{{ pg_version_result.stdout.split()[2].split('.')[0] }}/main"
+
+- name: Ensure /var/secrets directory exists
+  file:
+    path: /var/secrets
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: '0700'
+
+- name: Locate pg_hba.conf
+  command: |
+    find /etc/postgresql -name pg_hba.conf
+  register: pg_hba_location
+
+- name: Update PostgreSQL authentication method to md5 for local connections
+  lineinfile:
+    path: "{{ pg_hba_location.stdout }}"
+    regexp: '^host\s+all\s+all\s+127.0.0.1/32\s+'
+    line: 'host    all             all             127.0.0.1/32            md5'
+
+- name: Update PostgreSQL IPv6 authentication method to md5
+  lineinfile:
+    path: "{{ pg_hba_location.stdout }}"
+    regexp: '^host\s+all\s+all\s+::1/128\s+'
+    line: 'host    all             all             ::1/128                 md5'
+

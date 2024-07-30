@@ -1,0 +1,20 @@
+- hosts: hng
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+  pre_tasks:
+    - name: Install Python PostgreSQL library (psycopg2) using apt
+      apt:
+        name: python3-psycopg2
+        state: present
+
+  roles:
+    - common
+    - user
+    - postgres
+    - nginx
+    - redis
+    - app
+    - logging
+

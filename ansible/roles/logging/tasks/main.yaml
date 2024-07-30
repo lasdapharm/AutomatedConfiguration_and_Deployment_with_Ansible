@@ -1,0 +1,25 @@
+---
+- name: Configure log directory
+  file:
+    path: /var/log/stage_5b
+    state: directory
+    owner: hng
+    group: hng
+    mode: '0755'
+
+- name: Create error log file
+  file:
+    path: /var/log/stage_5b/error.log
+    state: touch
+    owner: hng
+    group: hng
+    mode: '0644'
+
+- name: Create out log file
+  file:
+    path: /var/log/stage_5b/out.log
+    state: touch
+    owner: hng
+    group: hng
+    mode: '0644'
+

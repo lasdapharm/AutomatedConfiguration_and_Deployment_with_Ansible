@@ -1,0 +1,51 @@
+- name: Stop Apache if running
+  systemd:
+    name: apache2
+    state: stopped
+    enabled: no
+  ignore_errors: yes
+
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Ensure /var/log/stage_5b directory exists
+  file:
+    path: /var/log/stage_5b
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Remove default Nginx configuration
+  file:
+    path: /etc/nginx/sites-available/default
+    state: absent
+  ignore_errors: yes
+
+- name: Remove default Nginx site symlink
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  ignore_errors: yes
+
+- name: Configure Nginx with custom configuration
+  template:
+    src: nginx_stage_5b.j2
+    dest: /etc/nginx/sites-available/stage_5b
+    mode: '0644'
+
+- name: Enable custom Nginx configuration
+  file:
+    src: /etc/nginx/sites-available/stage_5b
+    dest: /etc/nginx/sites-enabled/stage_5b
+    state: link
+
+- name: Restart Nginx to apply configuration
+  systemd:
+    name: nginx
+    state: restarted
+    enabled: yes
+

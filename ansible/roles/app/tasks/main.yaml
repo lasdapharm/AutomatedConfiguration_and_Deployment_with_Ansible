@@ -1,0 +1,58 @@
+- name: Clone the repository
+  git:
+    repo: "https://github.com/hngprojects/hng_boilerplate_php_laravel_web.git"
+    dest: /opt/stage_5b
+    version: devops
+    force: yes
+    update: yes
+
+- name: Install Composer
+  get_url:
+    url: https://getcomposer.org/installer
+    dest: /tmp/composer-setup.php
+
+- name: Run Composer to install PHP dependencies
+  command: php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+
+- name: Run Composer install
+  command: composer install
+  args:
+    chdir: /opt/stage_5b
+
+- name: Copy .env.example to .env
+  copy:
+    src: /opt/stage_5b/.env.example
+    dest: /opt/stage_5b/.env
+
+- name: Set specific environment variables in .env file
+  lineinfile:
+    path: /opt/stage_5b/.env
+    regexp: '^DB_CONNECTION='
+    line: 'DB_CONNECTION=pgsql'
+  when: "'DB_CONNECTION=' in lookup('file', '/opt/stage_5b/.env')"
+
+- name: Ensure the correct database configuration in .env file
+  lineinfile:
+    path: /opt/stage_5b/.env
+    regexp: '^DB_HOST='
+    line: 'DB_HOST=127.0.0.1'
+  when: "'DB_HOST=' in lookup('file', '/opt/stage_5b/.env')"
+
+- name: Ensure the correct Redis configuration in .env file
+  lineinfile:
+    path: /opt/stage_5b/.env
+    regexp: '^REDIS_HOST='
+    line: 'REDIS_HOST=127.0.0.1'
+  when: "'REDIS_HOST=' in lookup('file', '/opt/stage_5b/.env')"
+
+- name: Generate application key
+  command: php artisan key:generate
+  args:
+    chdir: /opt/stage_5b
+
+- name: Ensure the application is running on 127.0.0.1:3000
+  command: php artisan serve --host=127.0.0.1 --port=3000
+  args:
+    chdir: /opt/stage_5b
+    creates: /opt/stage_5b/storage/logs/laravel.log
+

@@ -1,0 +1,12 @@
+---
+- name: Create user hng
+  user:
+    name: hng
+    state: present
+    groups: sudo
+
+- name: Set up sudo privileges for hng
+  copy:
+    dest: /etc/sudoers.d/hng
+    content: "hng ALL=(ALL) NOPASSWD:ALL\n"
+
